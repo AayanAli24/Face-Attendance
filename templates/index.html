@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Attendance System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Face Attendance System</h1>
+
+        <div class="video-container">
+            <img src="{{ url_for('video_feed') }}" width="400">
+        </div>
+
+        <form action="/mark" method="post">
+            <input type="text" name="name" placeholder="Enter your name" required>
+            <button type="submit">Mark Attendance</button>
+        </form>
+
+        <a href="/records" class="btn">View Attendance Records</a>
+    </div>
+</body>
+</html>
