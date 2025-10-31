@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from datetime import datetime
 from PIL import Image
+from deepface import DeepFace
 
 # Paths
 CSV_FILE = "attendance.csv"
@@ -14,9 +15,9 @@ if not os.path.exists(CSV_FILE):
     pd.DataFrame(columns=["Name", "Date", "Day", "Status"]).to_csv(CSV_FILE, index=False)
 
 
-# ---------------- Helper Functions ----------------
 def load_attendance():
     return pd.read_csv(CSV_FILE)
+
 
 def save_attendance(name, status):
     now = datetime.now()
@@ -32,8 +33,8 @@ def save_attendance(name, status):
 
 
 # ---------------- Streamlit UI ----------------
-st.set_page_config(page_title="📸 Simple Attendance System", layout="wide")
-st.title("📸 Simple Attendance System (No Face Recognition)")
+st.set_page_config(page_title="📸 Smart Attendance System", layout="wide")
+st.title("📸 Smart Attendance System (Face Verification with DeepFace)")
 
 menu = st.sidebar.radio("Navigation", ["Register", "Mark Attendance", "View Records", "Delete Records"])
 
@@ -50,7 +51,6 @@ if menu == "Register":
         st.success(f"{name} registered successfully!")
         st.image(img, caption=f"Registered Image for {name}", use_container_width=True)
 
-
 # ---------------- Mark Attendance ----------------
 elif menu == "Mark Attendance":
     st.header("✅ Mark Attendance")
@@ -64,16 +64,27 @@ elif menu == "Mark Attendance":
         img_file = st.camera_input("Capture your photo to mark attendance")
 
         if img_file:
-            captured_img = Image.open(img_file)
-            st.image(captured_img, caption="Captured Image", use_container_width=True)
+            captured_img_path = f"temp_capture_{selected_name}.jpg"
+            Image.open(img_file).save(captured_img_path)
 
-            # Here you could compare images manually if needed
-            if selected_name + ".jpg" in registered_faces:
-                save_attendance(selected_name, "Present")
-                st.success(f"✅ Attendance marked for {selected_name}")
-            else:
-                st.error("🚫 Name not recognized. Please register first.")
+            registered_img_path = os.path.join(REGISTER_DIR, f"{selected_name}.jpg")
 
+            try:
+                result = DeepFace.verify(
+                    img1_path=captured_img_path,
+                    img2_path=registered_img_path,
+                    model_name="VGG-Face",
+                    enforce_detection=False
+                )
+
+                if result["verified"]:
+                    save_attendance(selected_name, "Present")
+                    st.success(f"✅ Attendance marked for {selected_name}")
+                else:
+                    st.error("🚫 Face not recognized! Please try again.")
+
+            except Exception as e:
+                st.error(f"Error during verification: {e}")
 
 # ---------------- View Records ----------------
 elif menu == "View Records":
