@@ -3,7 +3,7 @@ import pandas as pd
 import os
 from datetime import datetime
 from PIL import Image
-from deepface import DeepFace
+import imagehash
 
 # Paths
 CSV_FILE = "attendance.csv"
@@ -32,9 +32,17 @@ def save_attendance(name, status):
     df.to_csv(CSV_FILE, index=False)
 
 
+def compare_images(img1, img2, threshold=8):
+    """Compare images using perceptual hash difference."""
+    hash1 = imagehash.average_hash(img1)
+    hash2 = imagehash.average_hash(img2)
+    difference = abs(hash1 - hash2)
+    return difference < threshold  # lower difference = more similar
+
+
 # ---------------- Streamlit UI ----------------
-st.set_page_config(page_title="📸 Smart Attendance System", layout="wide")
-st.title("📸 Smart Attendance System (Face Verification with DeepFace)")
+st.set_page_config(page_title="📸 Attendance System", layout="wide")
+st.title("📸 Simple Face Verification Attendance (No AI)")
 
 menu = st.sidebar.radio("Navigation", ["Register", "Mark Attendance", "View Records", "Delete Records"])
 
@@ -64,27 +72,18 @@ elif menu == "Mark Attendance":
         img_file = st.camera_input("Capture your photo to mark attendance")
 
         if img_file:
-            captured_img_path = f"temp_capture_{selected_name}.jpg"
-            Image.open(img_file).save(captured_img_path)
+            captured_img = Image.open(img_file)
+            st.image(captured_img, caption="Captured Image", use_container_width=True)
 
             registered_img_path = os.path.join(REGISTER_DIR, f"{selected_name}.jpg")
+            registered_img = Image.open(registered_img_path)
 
-            try:
-                result = DeepFace.verify(
-                    img1_path=captured_img_path,
-                    img2_path=registered_img_path,
-                    model_name="VGG-Face",
-                    enforce_detection=False
-                )
-
-                if result["verified"]:
-                    save_attendance(selected_name, "Present")
-                    st.success(f"✅ Attendance marked for {selected_name}")
-                else:
-                    st.error("🚫 Face not recognized! Please try again.")
-
-            except Exception as e:
-                st.error(f"Error during verification: {e}")
+            # Compare registered vs captured
+            if compare_images(captured_img, registered_img):
+                save_attendance(selected_name, "Present")
+                st.success(f"✅ Attendance marked for {selected_name}")
+            else:
+                st.error("🚫 Face not recognized! Please try again.")
 
 # ---------------- View Records ----------------
 elif menu == "View Records":
