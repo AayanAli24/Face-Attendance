@@ -41,14 +41,14 @@ def compare_images(img1, img2, threshold=8):
 
 
 # ---------------- Streamlit UI ----------------
-st.set_page_config(page_title="📸 Attendance System", layout="wide")
-st.title("📸 Simple Face Verification Attendance (No AI)")
+st.set_page_config(page_title="Attendance System", layout="wide")
+st.title("Face Verification Attendance")
 
-menu = st.sidebar.radio("Navigation", ["Register", "Mark Attendance", "View Records", "Delete Records"])
+menu = st.sidebar.radio("Menu", ["Register", "Mark Attendance", "View Records", "Delete Records"])
 
 # ---------------- Register ----------------
 if menu == "Register":
-    st.header("🧍 Register a New Person")
+    st.header("Register a New Person")
     name = st.text_input("Enter your name:")
     img_file = st.camera_input("Capture your photo")
 
@@ -61,12 +61,12 @@ if menu == "Register":
 
 # ---------------- Mark Attendance ----------------
 elif menu == "Mark Attendance":
-    st.header("✅ Mark Attendance")
+    st.header("Mark Attendance")
 
     registered_faces = [f for f in os.listdir(REGISTER_DIR) if f.endswith(".jpg")]
 
     if not registered_faces:
-        st.warning("⚠️ No registered people found. Please register first.")
+        st.warning("No registered people found. Please register first.")
     else:
         selected_name = st.selectbox("Select your name:", [os.path.splitext(f)[0] for f in registered_faces])
         img_file = st.camera_input("Capture your photo to mark attendance")
@@ -81,20 +81,20 @@ elif menu == "Mark Attendance":
             # Compare registered vs captured
             if compare_images(captured_img, registered_img):
                 save_attendance(selected_name, "Present")
-                st.success(f"✅ Attendance marked for {selected_name}")
+                st.success(f"Attendance marked for {selected_name}")
             else:
-                st.error("🚫 Face not recognized! Please try again.")
+                st.error("Face not recognized! Please try again.")
 
 # ---------------- View Records ----------------
 elif menu == "View Records":
-    st.header("📋 Attendance Records")
+    st.header("Attendance Records")
     df = load_attendance()
     st.dataframe(df, use_container_width=True)
-    st.download_button("📥 Download CSV", df.to_csv(index=False).encode("utf-8"), "attendance.csv", "text/csv")
+    st.download_button("Download CSV", df.to_csv(index=False).encode("utf-8"), "attendance.csv", "text/csv")
 
 # ---------------- Delete Records ----------------
 elif menu == "Delete Records":
-    st.header("🗑️ Delete All Records")
+    st.header("Delete All Records")
     if st.button("Delete All Attendance Records"):
         pd.DataFrame(columns=["Name", "Date", "Day", "Status"]).to_csv(CSV_FILE, index=False)
-        st.success("✅ All attendance records deleted successfully!")
+        st.success("All attendance records deleted successfully!")
