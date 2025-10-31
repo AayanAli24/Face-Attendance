@@ -1,25 +1,131 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Attendance System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta charset="UTF-8">
+  <title>Live AI Attendance System</title>
+  <style>
+    body {
+      background: #f5f6fa;
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #2f3640;
+    }
+    #camera {
+      display: block;
+      margin: 20px auto;
+      border: 3px solid #273c75;
+      border-radius: 10px;
+      width: 640px;
+      height: 480px;
+      object-fit: cover;
+    }
+    .btn {
+      background-color: #273c75;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .btn:hover { background-color: #40739e; }
+    table {
+      margin: 30px auto;
+      border-collapse: collapse;
+      width: 80%;
+      background: white;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+    }
+    th {
+      background: #273c75;
+      color: white;
+    }
+    #message {
+      margin-top: 10px;
+      font-weight: bold;
+      color: green;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Face Attendance System</h1>
 
-        <div class="video-container">
-            <img src="{{ url_for('video_feed') }}" width="400">
-        </div>
+  <h1>🎥 Live AI Attendance System</h1>
+  <img id="camera" src="{{ url_for('video_feed') }}" alt="Camera Feed">
 
-        <form action="/mark" method="post">
-            <input type="text" name="name" placeholder="Enter your name" required>
-            <button type="submit">Mark Attendance</button>
-        </form>
+  <div>
+    <input type="text" id="nameInput" placeholder="Enter Name" />
+    <button class="btn" onclick="register()">Register</button>
+    <button class="btn" onclick="mark()">Mark Attendance</button>
+    <button class="btn" onclick="loadRecords()">View Records</button>
+    <button class="btn" onclick="downloadCSV()">Download CSV</button>
+    <button class="btn" onclick="deleteRecords()">Delete Records</button>
+  </div>
 
-        <a href="/records" class="btn">View Attendance Records</a>
-    </div>
+  <p id="message"></p>
+
+  <table id="recordTable">
+    <tr><th>Name</th><th>Date</th><th>Day</th><th>Status</th></tr>
+  </table>
+
+  <script>
+    async function register() {
+      const name = document.getElementById('nameInput').value;
+      const res = await fetch('/register', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: 'name=' + name
+      });
+      const data = await res.json();
+      showMessage(data.message || data.error);
+    }
+
+    async function mark() {
+      const res = await fetch('/mark', { method: 'POST' });
+      const data = await res.json();
+      showMessage(data.message || data.error);
+    }
+
+    async function loadRecords() {
+      const res = await fetch('/records');
+      const data = await res.json();
+      const table = document.getElementById('recordTable');
+      table.innerHTML = '<tr><th>Name</th><th>Date</th><th>Day</th><th>Status</th></tr>';
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        row.forEach(col => {
+          const td = document.createElement('td');
+          td.textContent = col;
+          tr.appendChild(td);
+        });
+        table.appendChild(tr);
+      });
+    }
+
+    async function deleteRecords() {
+      if (!confirm('Are you sure you want to delete all records?')) return;
+      const res = await fetch('/delete_records', { method: 'POST' });
+      const data = await res.json();
+      showMessage(data.message);
+      loadRecords();
+    }
+
+    function downloadCSV() {
+      window.location.href = '/download_csv';
+    }
+
+    function showMessage(msg) {
+      const messageBox = document.getElementById('message');
+      messageBox.textContent = msg;
+      messageBox.style.color = msg.includes("Absent") ? "red" : "green";
+    }
+  </script>
+
 </body>
 </html>

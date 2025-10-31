@@ -1,59 +1,63 @@
 body {
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #74ebd5, #9face6);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-
-.container {
-    text-align: center;
-    background: white;
-    padding: 20px 40px;
-    border-radius: 15px;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  font-family: Arial, sans-serif;
+  text-align: center;
+  background-color: #f7f7f7;
+  color: #333;
 }
 
 h1 {
-    color: #333;
+  color: #0078D7;
+  margin-top: 20px;
 }
 
-.video-container {
-    margin: 20px 0;
-}
-
-input[type="text"] {
-    padding: 8px;
-    width: 60%;
-    margin-right: 10px;
-    border-radius: 5px;
-    border: 1px solid #aaa;
+form {
+  margin: 20px;
 }
 
 button {
-    padding: 8px 16px;
-    border: none;
-    background-color: #4CAF50;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
+  padding: 10px 20px;
+  background-color: #0078D7;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
 }
 
 button:hover {
-    background-color: #45a049;
+  background-color: #005ea6;
 }
 
-.btn {
-    display: inline-block;
-    margin-top: 15px;
-    background-color: #2196F3;
-    color: white;
-    padding: 10px 15px;
-    text-decoration: none;
-    border-radius: 5px;
+.message {
+  color: green;
+  margin-top: 10px;
 }
 
-.btn:hover {
-    background-color: #0b7dda;
+.export {
+  display: inline-block;
+  margin-top: 10px;
+  text-decoration: none;
+  background: #28a745;
+  color: white;
+  padding: 8px 15px;
+  border-radius: 5px;
+}
+
+.export:hover {
+  background: #1f7a32;
+}
+
+table {
+  width: 80%;
+  margin: 20px auto;
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+th {
+  background-color: #0078D7;
+  color: white;
 }
